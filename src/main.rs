@@ -4,6 +4,7 @@ use tokio::io::AsyncReadExt;
 
 mod config;
 mod database;
+mod locale;
 
 use config::Config;
 
