@@ -1,0 +1,35 @@
+[log]
+level = "INFO"
+path = "./logs"
+
+[schedule]
+time = 14:38:00
+
+[telegram]
+token = "32819312983"
+groups = [-123456789]
+developers = [181213130]
+
+[twitch]
+streamer = "227959"
+client_id = "iiohejrjhkrj2342343"
+client_secret = "139203912"
+redirect_uri = "https://alessandrograssi.me/twitch_oauth"
+
+[rabbitmq]
+host = "rabbitmq.telegram.rabbitmq"
+port = 5671
+ca_cert = ""
+client_cert = ""
+client_key = ""
+
+[database]
+host = ""
+port = 3306
+username = "pippoUSER"
+password = "PippoPassword"
+database = "pippoDB"
+ca_cert = ""
+client_cert = ""
+client_key = ""
+
