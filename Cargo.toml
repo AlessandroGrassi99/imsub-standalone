@@ -5,9 +5,13 @@ edition = "2021"
 authors = ["Alessandro Grassi <alessandrograssi17@gmail.com>"]
 license = "MIT OR Apache-2.0"
 
+[workspace]
+members = ["crates/*"]
+
 [dependencies]
 toml = "0.5"
 serde = { version = "1.0", features = ["derive"] }
 clap = { version = "4.0", features = ["derive"] }
 tokio = { version = "1", features = ["full"] }
 sea-orm = "0.10.4"
+imsub-twitch-api = { path = "crates/twitch_api" }
