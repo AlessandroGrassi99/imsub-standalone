@@ -3,6 +3,7 @@ use tokio::fs::File;
 use tokio::io::AsyncReadExt;
 
 mod config;
+mod database;
 
 use config::Config;
 
