@@ -1,9 +1,9 @@
-use std::{collections::HashMap, path::Path, sync::Arc};
 use fluent::{bundle::FluentBundle, FluentResource};
 use fluent_bundle::FluentArgs;
-use tokio::fs::ReadDir;
-use thiserror::Error;
 use serde::{Deserialize, Serialize};
+use std::{collections::HashMap, path::Path, sync::Arc};
+use thiserror::Error;
+use tokio::fs::ReadDir;
 
 use unic_langid::LanguageIdentifier;
 
@@ -46,9 +46,8 @@ type FluentBundleSafe = FluentBundle<FluentResource, intl_memoizer::concurrent::
 #[derive(Clone)]
 pub struct LocaleManager {
     bundles: Arc<HashMap<(Locale, String), FluentBundleSafe>>,
-    local_locale: Locale
+    local_locale: Locale,
 }
-
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -59,9 +58,8 @@ pub enum Error {
     #[error("fluent error")]
     Fluent,
     #[error("other error")]
-    Other
+    Other,
 }
-
 
 impl LocaleManager {
     pub async fn new(locale_path: &str, default_locale: &str) -> Result<Self, Error> {
@@ -74,12 +72,16 @@ impl LocaleManager {
         })
     }
 
-    async fn load_locale(mut locale_dir: ReadDir) -> Result<HashMap<(Locale, String), FluentBundleSafe>, Error> {
+    async fn load_locale(
+        mut locale_dir: ReadDir,
+    ) -> Result<HashMap<(Locale, String), FluentBundleSafe>, Error> {
         let mut bundles: HashMap<(Locale, String), FluentBundleSafe> = HashMap::new();
 
         while let Some(locale_entry) = locale_dir.next_entry().await? {
             if let Ok(locale_meta) = locale_entry.metadata().await {
-                if !locale_meta.is_dir() { continue; }
+                if !locale_meta.is_dir() {
+                    continue;
+                }
 
                 let locale_name = match locale_entry.file_name().into_string() {
                     Ok(name) => name,
@@ -92,7 +94,7 @@ impl LocaleManager {
 
                 let locale_res_iter = match tokio::fs::read_dir(locale_entry.path()).await {
                     Ok(value) => value,
-                    Err(_) => continue
+                    Err(_) => continue,
                 };
 
                 let locale_bundles = Self::build_locale_res(locale, locale_res_iter).await?;
@@ -106,12 +108,25 @@ impl LocaleManager {
 
     async fn build_locale_res(
         locale: Locale,
-        mut locale_res_dir: ReadDir
+        mut locale_res_dir: ReadDir,
     ) -> Result<Vec<(String, FluentBundleSafe)>, Error> {
         let mut locale_res = Vec::new();
         while let Some(locale_res_entry) = locale_res_dir.next_entry().await? {
-            if locale_res_entry.path().extension().ok_or(Error::Other)?.to_str() != Some("ftl") { continue }
-            let locale_res_file_name = match locale_res_entry.path().file_stem().ok_or(Error::Other)?.to_str() {
+            if locale_res_entry
+                .path()
+                .extension()
+                .ok_or(Error::Other)?
+                .to_str()
+                != Some("ftl")
+            {
+                continue;
+            }
+            let locale_res_file_name = match locale_res_entry
+                .path()
+                .file_stem()
+                .ok_or(Error::Other)?
+                .to_str()
+            {
                 Some(file_name) => file_name.to_string(),
                 None => continue,
             };
@@ -119,7 +134,9 @@ impl LocaleManager {
             let mut locale_bundle = FluentBundleSafe::new_concurrent(vec![locale.into()]);
             let res_str: String = tokio::fs::read_to_string(locale_res_entry.path()).await?;
             let fluent_res = FluentResource::try_new(res_str).map_err(|_| Error::Fluent)?;
-            locale_bundle.add_resource(fluent_res).map_err(|_| Error::Fluent)?;
+            locale_bundle
+                .add_resource(fluent_res)
+                .map_err(|_| Error::Fluent)?;
 
             locale_res.push((locale_res_file_name, locale_bundle));
         }
@@ -131,20 +148,27 @@ impl LocaleManager {
         self.local_locale = chat_locale;
     }
 
-    pub async fn get_message(&self, res: &str, id: &str, args: Option<Vec<(String, String)>>) -> Option<String> {
+    pub async fn get_message(
+        &self,
+        res: &str,
+        id: &str,
+        args: Option<Vec<(String, String)>>,
+    ) -> Option<String> {
         let bundle = self.get_local_bundle(res)?;
         let mut message = None;
 
         if let Some(value) = bundle.get_message(id)?.value() {
-            let mut error  = Vec::new();
+            let mut error = Vec::new();
             let mut fluent_args_opt = None;
             let mut fluent_args;
             if let Some(args) = args {
                 fluent_args = FluentArgs::new();
-                args.into_iter().for_each(|(k, v)|  fluent_args.set(k, v));
+                args.into_iter().for_each(|(k, v)| fluent_args.set(k, v));
                 fluent_args_opt = Some(&fluent_args);
             }
-            let format_res = bundle.format_pattern(value, fluent_args_opt, &mut error).to_string();
+            let format_res = bundle
+                .format_pattern(value, fluent_args_opt, &mut error)
+                .to_string();
             if error.is_empty() {
                 message = Some(format_res);
             }

@@ -7,9 +7,9 @@ mod database;
 mod locale;
 mod telegram;
 
-use config::Config;
-use teloxide::{prelude::*, adaptors::throttle::Limits};
 use crate::locale::LocaleManager;
+use config::Config;
+use teloxide::{adaptors::throttle::Limits, prelude::*};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -23,8 +23,12 @@ async fn main() {
     let args = Args::parse();
     let config = config_from_file(args.file_path).await;
 
-    let locale = LocaleManager::new(config.locale.path.as_str(), config.locale.default_lang.as_str()).await
-        .expect("unable to create the locale manager");
+    let locale = LocaleManager::new(
+        config.locale.path.as_str(),
+        config.locale.default_lang.as_str(),
+    )
+    .await
+    .expect("unable to create the locale manager");
 
     let bot = Bot::new(config.telegram.token.as_str())
         .throttle(Limits::default())

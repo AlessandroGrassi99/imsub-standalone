@@ -1,5 +1,5 @@
-use std::collections::HashSet;
 use serde::Deserialize;
+use std::collections::HashSet;
 use toml::value::Datetime;
 
 #[derive(Deserialize)]

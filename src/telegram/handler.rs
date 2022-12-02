@@ -1,8 +1,8 @@
 use std::error::Error;
 use teloxide::{
+    adaptors::{CacheMe, DefaultParseMode, Throttle},
     prelude::*,
     utils::command::BotCommands,
-    adaptors::{CacheMe, DefaultParseMode, Throttle}
 };
 // use crate::{LocaleManager, StorageManager, TwitchManager};
 use crate::locale::{Locale, LocaleManager};
@@ -16,24 +16,27 @@ pub async fn message_handler(
     locale: LocaleManager,
 ) -> Result<(), Box<dyn Error + Send + Sync>> {
     if let Some(text) = message.text() {
-        use crate::telegram::command::Command::*;
         use crate::telegram::command::Command;
+        use crate::telegram::command::Command::*;
 
         let mut locale = locale.clone();
-        locale.load_current_locale(get_language(&message).await).await;
-
+        locale
+            .load_current_locale(get_language(&message).await)
+            .await;
 
         match Command::parse(text, "buttons") {
             Ok(Help) => {
-                bot.send_message(message.chat.id, Command::descriptions().to_string()).await?;
-            },
+                bot.send_message(message.chat.id, Command::descriptions().to_string())
+                    .await?;
+            }
             Ok(Start) => {
                 command::start(message, bot).await?;
-            },
+            }
             Ok(Reset) => {
-                bot.send_message(message.chat.id, "Reset".to_string()).await?;
-            },
-            Err(_) => { }
+                bot.send_message(message.chat.id, "Reset".to_string())
+                    .await?;
+            }
+            Err(_) => {}
         }
     };
 
