@@ -20,3 +20,5 @@ fluent-bundle = "0.15.2"
 unic-langid = "0.9.0"
 intl-memoizer = "0.5.1"
 thiserror = "1"
+url = "2.3"
+teloxide = { version = "0.11", features = ["macros", "auto-send", "cache-me", "throttle", "sqlite-storage"] }

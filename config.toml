@@ -33,3 +33,6 @@ ca_cert = ""
 client_cert = ""
 client_key = ""
 
+[locale]
+path = "./res/locale"
+default_lang = "en"

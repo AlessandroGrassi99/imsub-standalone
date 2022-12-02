@@ -35,6 +35,12 @@ impl Into<LanguageIdentifier> for Locale {
     }
 }
 
+impl Default for Locale {
+    fn default() -> Self {
+        Self::En
+    }
+}
+
 type FluentBundleSafe = FluentBundle<FluentResource, intl_memoizer::concurrent::IntlLangMemoizer>;
 
 #[derive(Clone)]
