@@ -6,7 +6,7 @@ path = "./logs"
 time = 14:38:00
 
 [telegram]
-token = "32819312983"
+token = "2012545650:AAF8WaC2DIsbLM0kKUkpiCxN5B9qf3NLwR4"
 groups = [-123456789]
 developers = [181213130]
 
@@ -24,14 +24,11 @@ client_cert = ""
 client_key = ""
 
 [database]
-host = ""
+host = "75.119.155.136"
 port = 3306
-username = "pippoUSER"
-password = "PippoPassword"
-database = "pippoDB"
-ca_cert = ""
-client_cert = ""
-client_key = ""
+username = "root"
+password = "mypass"
+database = "pippo"
 
 [locale]
 path = "./res/locale"

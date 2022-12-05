@@ -1,4 +1,6 @@
 use clap::Parser;
+use sea_orm::{ConnectOptions, Database};
+use std::time::Duration;
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
 
@@ -30,15 +32,24 @@ async fn main() {
     .await
     .expect("unable to create the locale manager");
 
+    let mut opt = ConnectOptions::new(config.database.build_url());
+    opt.max_connections(2)
+        .min_connections(1)
+        .connect_timeout(Duration::from_secs(8))
+        .idle_timeout(Duration::from_secs(8))
+        .sqlx_logging(true);
+    let conn = Database::connect(opt)
+        .await
+        .expect("unable to connect to the database");
+
     let bot = Bot::new(config.telegram.token.as_str())
         .throttle(Limits::default())
         .parse_mode(teloxide::types::ParseMode::Html);
 
-    let handler = dptree::entry()
-        .branch(Update::filter_message().endpoint(telegram::handler::message_handler));
+    let handler = telegram::schema();
 
     Dispatcher::builder(bot, handler)
-        .dependencies(dptree::deps![locale])
+        .dependencies(dptree::deps![locale, conn])
         .default_handler(|upd| async move {
             println!("Unhandled update: {:?}", upd);
         })

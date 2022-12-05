@@ -54,10 +54,24 @@ pub(crate) struct Database {
     pub host: String,
     pub port: u16,
     pub username: String,
+    pub password: String,
     pub database: String,
     pub ca_cert: Option<String>,
     pub client_cert: Option<String>,
     pub client_key: Option<String>,
+}
+
+impl Database {
+    pub(crate) fn build_url(&self) -> String {
+        format!(
+            "mysql://{username}:{password}@{host}:{port}/{database}",
+            username = self.username,
+            password = self.password,
+            host = self.host,
+            port = self.port,
+            database = self.database
+        )
+    }
 }
 
 #[derive(Deserialize)]
