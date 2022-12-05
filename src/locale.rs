@@ -2,9 +2,9 @@ use fluent::{bundle::FluentBundle, FluentResource};
 use fluent_bundle::FluentArgs;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, path::Path, sync::Arc};
+use teloxide::prelude::Message;
 use thiserror::Error;
 use tokio::fs::ReadDir;
-use teloxide::prelude::Message;
 
 use unic_langid::LanguageIdentifier;
 
@@ -149,7 +149,7 @@ impl LocaleManager {
         self.local_locale = chat_locale;
     }
 
-    pub(crate) async fn set_chat_locale_from_message(&mut self, message: &Message) {
+    pub(crate) fn set_chat_locale_from_message(&mut self, message: &Message) {
         self.local_locale = Self::get_language(message);
     }
 
