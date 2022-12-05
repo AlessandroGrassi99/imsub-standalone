@@ -8,6 +8,24 @@ use tokio::fs::ReadDir;
 
 use unic_langid::LanguageIdentifier;
 
+#[macro_export]
+macro_rules! locale_args {
+    () => { fluent_bundle::FluentArgs::new() };
+    ( $( $x:expr ),* ) => {
+        {
+            let mut fluent_args = fluent_bundle::FluentArgs::new();
+            $(
+                {
+                    fluent_args.set($x.0, $x.1);
+                }
+            )*
+            fluent_args
+        }
+    };
+}
+
+pub(crate) use locale_args;
+
 #[derive(Deserialize, Serialize, Clone, Copy, Eq, Hash, PartialEq, Debug)]
 #[serde(rename_all = "kebab-case")]
 pub enum Locale {
@@ -153,28 +171,14 @@ impl LocaleManager {
         self.local_locale = Self::get_language(message);
     }
 
-    pub(crate) fn get_message(
-        &self,
-        res: &str,
-        id: &str,
-        args: Option<Vec<(&str, &str)>>,
-    ) -> Option<String> {
+    pub(crate) fn get_message(&self, res: &str, id: &str, args: FluentArgs) -> Option<String> {
         let bundle = self.get_local_bundle(res)?;
         let mut message = None;
 
         if let Some(value) = bundle.get_message(id)?.value() {
             let mut error = Vec::new();
-            let mut fluent_args_opt = None;
-            let mut fluent_args;
-            if let Some(args) = args {
-                fluent_args = FluentArgs::new();
-                args.into_iter()
-                    .map(|(k, v)| (k.to_string(), v.to_string()))
-                    .for_each(|(k, v)| fluent_args.set(k, v));
-                fluent_args_opt = Some(&fluent_args);
-            }
             let format_res = bundle
-                .format_pattern(value, fluent_args_opt, &mut error)
+                .format_pattern(value, Some(&args), &mut error)
                 .to_string();
             if error.is_empty() {
                 message = Some(format_res);

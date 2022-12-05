@@ -12,6 +12,7 @@ mod telegram;
 use crate::locale::LocaleManager;
 use config::Config;
 use teloxide::{adaptors::throttle::Limits, prelude::*};
+use tracing::warn;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -55,7 +56,7 @@ async fn main() {
     Dispatcher::builder(bot, handler)
         .dependencies(dptree::deps![locale, conn])
         .default_handler(|upd| async move {
-            println!("Unhandled update: {:?}", upd);
+            warn!("unhandled update: {:?}", upd);
         })
         .enable_ctrlc_handler()
         .build()

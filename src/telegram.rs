@@ -17,7 +17,7 @@ type HandlerResult = Result<(), Box<dyn std::error::Error + Send + Sync>>;
 
 pub(crate) fn schema() -> UpdateHandler<Box<dyn std::error::Error + Send + Sync + 'static>> {
     let command_handler = teloxide::filter_command::<Command, _>()
-        .branch(case![Command::Start].endpoint(command::start::start))
+        .branch(case![Command::Start].endpoint(command::start::start_new_user))
         .branch(case![Command::Help].endpoint(command::help::help))
         .branch(case![Command::Reset].endpoint(command::reset::reset));
 
@@ -29,4 +29,8 @@ pub(crate) fn schema() -> UpdateHandler<Box<dyn std::error::Error + Send + Sync 
         .branch(command_handler);
 
     dptree::entry().branch(message_handler)
+}
+
+pub(crate) enum Error {
+    Locale(String),
 }
