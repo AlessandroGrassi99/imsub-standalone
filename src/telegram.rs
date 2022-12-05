@@ -8,7 +8,6 @@ use teloxide::{
 };
 
 mod command;
-mod handler;
 
 use command::Command;
 

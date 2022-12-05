@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, path::Path, sync::Arc};
 use thiserror::Error;
 use tokio::fs::ReadDir;
+use teloxide::prelude::Message;
 
 use unic_langid::LanguageIdentifier;
 
@@ -64,7 +65,7 @@ pub enum Error {
 impl LocaleManager {
     pub async fn new(locale_path: &str, default_locale: &str) -> Result<Self, Error> {
         let locale_dir = tokio::fs::read_dir(Path::new(locale_path)).await?;
-        let bundles = Self::load_locale(locale_dir).await?;
+        let bundles = Self::load_locale_local_database(locale_dir).await?;
 
         Ok(Self {
             bundles: Arc::new(bundles),
@@ -72,7 +73,7 @@ impl LocaleManager {
         })
     }
 
-    async fn load_locale(
+    async fn load_locale_local_database(
         mut locale_dir: ReadDir,
     ) -> Result<HashMap<(Locale, String), FluentBundleSafe>, Error> {
         let mut bundles: HashMap<(Locale, String), FluentBundleSafe> = HashMap::new();
@@ -144,8 +145,12 @@ impl LocaleManager {
     }
 
     /// Load the language of the current conversation, if the Locale not exists the default value is english.
-    pub async fn load_current_locale(&mut self, chat_locale: Locale) {
+    pub async fn set_chat_locale(&mut self, chat_locale: Locale) {
         self.local_locale = chat_locale;
+    }
+
+    pub(crate) async fn set_chat_locale_from_message(&mut self, message: &Message) {
+        self.local_locale = Self::get_language(message);
     }
 
     pub async fn get_message(
@@ -183,5 +188,18 @@ impl LocaleManager {
 
     fn get_bundle(&self, locale: Locale, res: &str) -> Option<&FluentBundleSafe> {
         self.bundles.get(&(locale, res.to_string()))
+    }
+
+    fn get_language(message: &Message) -> Locale {
+        let mut locale = Locale::default();
+        if let Some(user) = message.from() {
+            if let Some(lang) = &user.language_code {
+                if let Ok(chat_locale) = Locale::try_from(lang.as_str()) {
+                    locale = chat_locale;
+                }
+            }
+        }
+
+        locale
     }
 }
