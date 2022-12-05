@@ -43,6 +43,7 @@ async fn main() {
         .expect("unable to connect to the database");
 
     let bot = Bot::new(config.telegram.token.as_str())
+        .cache_me()
         .throttle(Limits::default())
         .parse_mode(teloxide::types::ParseMode::Html);
 

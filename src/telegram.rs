@@ -12,7 +12,7 @@ mod handler;
 
 use command::Command;
 
-type BotType = DefaultParseMode<CacheMe<Throttle<Bot>>>;
+type BotType = DefaultParseMode<Throttle<CacheMe<Bot>>>;
 type HandlerResult = Result<(), Box<dyn std::error::Error + Send + Sync>>;
 
 pub(crate) fn schema() -> UpdateHandler<Box<dyn std::error::Error + Send + Sync + 'static>> {
