@@ -19,11 +19,12 @@ pub(crate) fn schema() -> UpdateHandler<Box<dyn std::error::Error + Send + Sync 
     let command_handler = teloxide::filter_command::<Command, _>()
         .branch(case![Command::Start].endpoint(command::start::start))
         .branch(case![Command::Help].endpoint(command::help::help))
-        .branch(case![Command::Reset].endpoint(command::reset));
+        .branch(case![Command::Reset].endpoint(command::reset::reset));
 
     let message_handler = Update::filter_message()
         .map(|message: Message, mut locale: LocaleManager| {
             locale.set_chat_locale_from_message(&message);
+            locale
         })
         .branch(command_handler);
 

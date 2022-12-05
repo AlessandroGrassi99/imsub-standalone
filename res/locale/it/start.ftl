@@ -1,0 +1,1 @@
+hello = Ciao, { $userName }! Questo è il comando /start.

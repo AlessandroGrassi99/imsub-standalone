@@ -8,7 +8,7 @@ use tokio::fs::ReadDir;
 
 use unic_langid::LanguageIdentifier;
 
-#[derive(Deserialize, Serialize, Clone, Copy, Eq, Hash, PartialEq)]
+#[derive(Deserialize, Serialize, Clone, Copy, Eq, Hash, PartialEq, Debug)]
 #[serde(rename_all = "kebab-case")]
 pub enum Locale {
     En,
@@ -47,7 +47,7 @@ type FluentBundleSafe = FluentBundle<FluentResource, intl_memoizer::concurrent::
 #[derive(Clone)]
 pub struct LocaleManager {
     bundles: Arc<HashMap<(Locale, String), FluentBundleSafe>>,
-    local_locale: Locale,
+    pub(crate) local_locale: Locale,
 }
 
 #[derive(Error, Debug)]
@@ -153,7 +153,7 @@ impl LocaleManager {
         self.local_locale = Self::get_language(message);
     }
 
-    pub async fn get_message(
+    pub(crate) fn get_message(
         &self,
         res: &str,
         id: &str,
