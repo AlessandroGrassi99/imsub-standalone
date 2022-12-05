@@ -5,9 +5,11 @@ use teloxide::{
     utils::command::BotCommands,
 };
 
-type BotType = DefaultParseMode<CacheMe<Throttle<Bot>>>;
+pub mod help;
+pub mod reset;
+pub mod start;
 
-#[derive(BotCommands)]
+#[derive(BotCommands, Clone)]
 #[command(
     rename_rule = "lowercase",
     description = "These commands are supported:"
@@ -19,11 +21,4 @@ pub enum Command {
     Start,
     #[command(description = "delete all data.", parse_with = "split")]
     Reset,
-}
-
-pub async fn start(message: Message, bot: BotType) -> Result<(), Box<dyn Error + Send + Sync>> {
-    bot.send_message(message.chat.id, format!("/start message test"))
-        .await?;
-
-    Ok(())
 }
