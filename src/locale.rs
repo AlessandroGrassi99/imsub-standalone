@@ -157,7 +157,7 @@ impl LocaleManager {
         &self,
         res: &str,
         id: &str,
-        args: Option<Vec<(String, String)>>,
+        args: Option<Vec<(&str, &str)>>,
     ) -> Option<String> {
         let bundle = self.get_local_bundle(res)?;
         let mut message = None;
@@ -168,7 +168,9 @@ impl LocaleManager {
             let mut fluent_args;
             if let Some(args) = args {
                 fluent_args = FluentArgs::new();
-                args.into_iter().for_each(|(k, v)| fluent_args.set(k, v));
+                args.into_iter()
+                    .map(|(k, v)| (k.to_string(), v.to_string()))
+                    .for_each(|(k, v)| fluent_args.set(k, v));
                 fluent_args_opt = Some(&fluent_args);
             }
             let format_res = bundle
