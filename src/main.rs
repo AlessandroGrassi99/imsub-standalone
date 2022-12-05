@@ -25,6 +25,9 @@ async fn main() {
     let args = Args::parse();
     let config = config_from_file(args.file_path).await;
 
+    // TODO sync log level from config file
+    tracing_subscriber::fmt::init();
+
     let locale = LocaleManager::new(
         config.locale.path.as_str(),
         config.locale.default_lang.as_str(),
