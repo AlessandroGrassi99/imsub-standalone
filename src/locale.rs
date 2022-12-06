@@ -1,5 +1,6 @@
 use fluent::{bundle::FluentBundle, FluentResource};
 use fluent_bundle::FluentArgs;
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, path::Path, sync::Arc};
 use teloxide::prelude::Message;
@@ -7,24 +8,6 @@ use thiserror::Error;
 use tokio::fs::ReadDir;
 
 use unic_langid::LanguageIdentifier;
-
-#[macro_export]
-macro_rules! locale_args {
-    () => { fluent_bundle::FluentArgs::new() };
-    ( $( $x:expr ),* ) => {
-        {
-            let mut fluent_args = fluent_bundle::FluentArgs::new();
-            $(
-                {
-                    fluent_args.set($x.0, $x.1);
-                }
-            )*
-            fluent_args
-        }
-    };
-}
-
-pub(crate) use locale_args;
 
 #[derive(Deserialize, Serialize, Clone, Copy, Eq, Hash, PartialEq, Debug)]
 #[serde(rename_all = "kebab-case")]
@@ -78,6 +61,14 @@ pub enum Error {
     Fluent,
     #[error("other error")]
     Other,
+    #[error("get message error[{res:?}, {id:?}, args: {args:?}]: {reason:?}; other fluent error: {other_fluent_errors:?}")]
+    GetMessage {
+        reason: String,
+        res: String,
+        id: String,
+        args: String,
+        other_fluent_errors: String,
+    },
 }
 
 impl LocaleManager {
@@ -171,21 +162,77 @@ impl LocaleManager {
         self.local_locale = Self::get_language(message);
     }
 
-    pub(crate) fn get_message(&self, res: &str, id: &str, args: FluentArgs) -> Option<String> {
-        let bundle = self.get_local_bundle(res)?;
-        let mut message = None;
-
-        if let Some(value) = bundle.get_message(id)?.value() {
-            let mut error = Vec::new();
-            let format_res = bundle
-                .format_pattern(value, Some(&args), &mut error)
-                .to_string();
-            if error.is_empty() {
-                message = Some(format_res);
+    pub(crate) fn get_message(
+        &self,
+        res: &str,
+        id: &str,
+        args: FluentArgs,
+    ) -> Result<String, Error> {
+        // TODO Remove some boilerplate for the creation of `Error::GetMessage`
+        let bundle = self.get_local_bundle(res).ok_or({
+            Error::GetMessage {
+                reason: "failed to retrieve bundle".to_string(),
+                res: res.to_string(),
+                id: id.to_string(),
+                args: args
+                    .iter()
+                    .map(|(k, v)| format!("({}, {:#?})", k, v))
+                    .join(" "),
+                other_fluent_errors: String::default(),
             }
+        })?;
+
+        let fluent_message = match bundle.get_message(id) {
+            Some(fluent_message) => fluent_message.value(),
+            None => {
+                return Err(Error::GetMessage {
+                    reason: "failed to retrieve message".to_string(),
+                    res: res.to_string(),
+                    id: id.to_string(),
+                    args: args
+                        .iter()
+                        .map(|(k, v)| format!("({}, {:#?})", k, v))
+                        .join(" "),
+                    other_fluent_errors: String::default(),
+                })
+            }
+        };
+
+        let fluent_message = match fluent_message {
+            Some(value) => value,
+            None => {
+                return Err(Error::GetMessage {
+                    reason: "message not found".to_string(),
+                    res: res.to_string(),
+                    id: id.to_string(),
+                    args: args
+                        .iter()
+                        .map(|(k, v)| format!("({}, {:#?})", k, v))
+                        .join(" "),
+                    other_fluent_errors: String::default(),
+                })
+            }
+        };
+
+        let mut error = Vec::new();
+        let formatted_message = bundle
+            .format_pattern(fluent_message, Some(&args), &mut error)
+            .to_string();
+
+        if !error.is_empty() {
+            return Err(Error::GetMessage {
+                reason: "failed to apply message args".to_string(),
+                res: res.to_string(),
+                id: id.to_string(),
+                args: args
+                    .iter()
+                    .map(|(k, v)| format!("({}, {:#?})", k, v))
+                    .join(" "),
+                other_fluent_errors: error.iter().map(|x| x.to_string()).join(","),
+            });
         }
 
-        message
+        Ok(formatted_message)
     }
 
     fn get_local_bundle(&self, res: &str) -> Option<&FluentBundleSafe> {
