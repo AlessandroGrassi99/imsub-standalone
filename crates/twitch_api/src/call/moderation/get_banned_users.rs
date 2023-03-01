@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::client::{HasPagination, Pagination, TwitchApiClient};
-use crate::error::TwitchApiClientError;
+use crate::prelude::{TwitchApiClient, TwitchApiClientError, HasPagination, Pagination};
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct BannedUser {

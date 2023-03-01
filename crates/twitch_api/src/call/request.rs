@@ -1,6 +1,10 @@
 use openidconnect::{CsrfToken, Nonce};
 use std::collections::HashSet;
 
+pub mod prelude {
+    pub use super::CachedAuthRequest;
+}
+
 #[derive(Debug, Clone)]
 pub struct CachedAuthRequest {
     pub request_id: String,

@@ -1,3 +1,7 @@
+pub mod prelude {
+    pub use super::CoreTwitchOidcClient;
+}
+
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 
@@ -123,7 +127,7 @@ where
     }
 
     ///
-    /// Extra fields defined by the client application.
+    /// Extra fields defined by the call application.
     ///
     #[allow(dead_code)]
     pub fn extra_fields(&self) -> &EF {
@@ -131,7 +135,7 @@ where
     }
 
     ///
-    /// Set the extra fields defined by the client application.
+    /// Set the extra fields defined by the call application.
     ///
     #[allow(dead_code)]
     pub fn set_extra_fields(&mut self, extra_fields: EF) {
@@ -182,7 +186,7 @@ where
         self.refresh_token.as_ref()
     }
     ///
-    /// OPTIONAL, if identical to the scope requested by the client; otherwise, REQUIRED. The
+    /// OPTIONAL, if identical to the scope requested by the call; otherwise, REQUIRED. The
     /// scope of the access token as described by
     /// [Section 3.3](https://tools.ietf.org/html/rfc6749#section-3.3). If included in the response,
     /// this space-delimited field is parsed into a `Vec` of individual scopes. If omitted from

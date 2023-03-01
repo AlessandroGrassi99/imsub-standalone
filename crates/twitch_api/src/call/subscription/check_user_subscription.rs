@@ -2,8 +2,7 @@ use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use url::Url;
 
-use crate::client::TwitchApiClient;
-use crate::error::TwitchApiClientError;
+use crate::prelude::{TwitchApiClient, TwitchApiClientError};
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct Subscription {
@@ -24,13 +23,12 @@ pub struct CheckUserSubscription {
 impl TwitchApiClient {
     pub async fn check_user_subscription(
         &self,
-        broadcaster_id: String,
         user_id: String,
         access_token: String,
     ) -> Result<Subscription, TwitchApiClientError> {
         let url = Url::parse_with_params(
             "https://api.twitch.tv/helix/subscriptions/user",
-            &[("broadcaster_id", broadcaster_id), ("user_id", user_id)],
+            &[("broadcaster_id", self.broadcast_id.as_str()), ("user_id", user_id.as_str())],
         )
         .map_err(TwitchApiClientError::from)?;
 

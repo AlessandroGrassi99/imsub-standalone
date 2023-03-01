@@ -4,7 +4,7 @@ use openidconnect::{CsrfToken, Nonce, PkceCodeChallenge, Scope};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 
-use crate::client::{CachedAuthRequest, TwitchApiClient};
+use crate::prelude::{TwitchApiClient, CachedAuthRequest};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct AuthUrl {

@@ -2,8 +2,7 @@ use reqwest::header::HeaderMap;
 use serde::{Deserialize, Serialize};
 use url::Url;
 
-use crate::client::TwitchApiClient;
-use crate::error::TwitchApiClientError;
+use crate::prelude::{TwitchApiClient, TwitchApiClientError};
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct User {

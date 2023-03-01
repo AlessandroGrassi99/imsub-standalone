@@ -1,4 +1,5 @@
 use clap::Parser;
+use imsub_twitch_api::TwitchApiClient;
 use sea_orm::{ConnectOptions, Database};
 use std::time::Duration;
 use tokio::fs::File;
@@ -46,6 +47,15 @@ async fn main() {
         .await
         .expect("unable to connect to the database");
 
+    let twitch = TwitchApiClient::new(
+        String::from("https://id.twitch.tv/oauth2"),
+        config.twitch.client_id,
+        config.twitch.client_secret,
+        config.twitch.redirect_uri,
+    )
+    .await
+    .expect("unable to create the twitch call");
+
     let bot = Bot::new(config.telegram.token.as_str())
         .cache_me()
         .throttle(Limits::default())
@@ -54,7 +64,7 @@ async fn main() {
     let handler = telegram::schema();
 
     Dispatcher::builder(bot, handler)
-        .dependencies(dptree::deps![locale, conn])
+        .dependencies(dptree::deps![locale, conn, twitch])
         .default_handler(|upd| async move {
             warn!("unhandled update: {:?}", upd);
         })

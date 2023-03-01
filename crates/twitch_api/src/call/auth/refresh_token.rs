@@ -4,8 +4,7 @@ use openidconnect::{OAuth2TokenResponse, RefreshToken, Scope};
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 
-use crate::client::TwitchApiClient;
-use crate::error::{OidcError, TwitchApiClientError};
+use crate::prelude::{TwitchApiClient, OidcError, TwitchApiClientError};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RefreshTokenResponse {

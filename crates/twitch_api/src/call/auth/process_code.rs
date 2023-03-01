@@ -8,8 +8,7 @@ use openidconnect::{
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 
-use crate::client::TwitchApiClient;
-use crate::error::{OidcError, TwitchApiClientError};
+use crate::prelude::{TwitchApiClient, OidcError, TwitchApiClientError};
 
 #[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct ProcessCodeRes {

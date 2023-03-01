@@ -1,3 +1,9 @@
+pub mod prelude {
+    pub use super::OidcError;
+    pub use super::TwitchApiClientError;
+}
+
+
 use openidconnect::{
     ClaimsVerificationError, ConfigurationError, DiscoveryError, ErrorResponse, RequestTokenError,
     SigningError, UserInfoError,

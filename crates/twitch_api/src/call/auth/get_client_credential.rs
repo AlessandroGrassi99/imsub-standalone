@@ -2,8 +2,7 @@ use chrono::NaiveDateTime;
 use serde::Deserialize;
 use url::Url;
 
-use crate::client::TwitchApiClient;
-use crate::TwitchApiClientError;
+use crate::{TwitchApiClient, TwitchApiClientError};
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct GetClientCredential {
