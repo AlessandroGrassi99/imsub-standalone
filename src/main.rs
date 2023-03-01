@@ -68,6 +68,6 @@ async fn config_from_file(file_path: String) -> Config {
     let mut file = File::open(file_path).await.expect("open config file");
     let mut contents = vec![];
     file.read_to_end(&mut contents).await.expect("read file");
-
-    toml::from_slice(contents.as_slice()).expect("parse config file to toml")
+    let contents = String::from_utf8(contents).expect("parse config content to string");
+    toml::from_str(contents.as_str()).expect("parse config file to toml")
 }
